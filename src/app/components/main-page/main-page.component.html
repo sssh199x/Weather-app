@@ -1,0 +1,16 @@
+<p-card styleClass="header">
+  <h2 class="font-bold text-4xl md:text-6xl mx-1 my-auto">Weather App</h2>
+  <div class="flex align-items-center gap-2 p-2 control-buttons">
+    <p-button
+      icon="pi pi-sun"
+      size="small"
+      (onClick)="toggleDarkMode()"
+      [outlined]="true"
+      [rounded]="true"
+      [raised]="true"
+    >
+    </p-button>
+<!-- Options PopOver -->
+    <app-profile></app-profile>
+  </div>
+</p-card>

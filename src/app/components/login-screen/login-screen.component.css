@@ -1,0 +1,56 @@
+:host ::ng-deep .custom-card {
+  border: 1px solid var(--p-surface-300, #dee2e6);
+  border-radius: 6px;
+  box-shadow: 0 2px 1px -1px rgba(0,0,0,0.2),
+  0 1px 1px 0 rgba(0,0,0,0.14),
+  0 1px 3px 0 rgba(0,0,0,0.12);
+}
+
+/* Dark mode styling if needed */
+:host-context(.my-app-dark) ::ng-deep .custom-card {
+  background-color: var(--p-surface-900);
+}
+
+
+
+
+.control-buttons p-button ::ng-deep .p-button {
+  transition: all 0.2s ease;
+  min-width: 2.5rem; /* Consistent button size */
+  min-height: 2.5rem; /* Consistent button size */
+}
+
+.control-buttons p-button ::ng-deep .p-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Add active state for better user feedback */
+.control-buttons p-button ::ng-deep .p-button:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* For light mode */
+:host ::ng-deep .control-buttons .p-button.p-button-raised {
+  border-color: var(--p-gray-300) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important; /* Slightly transparent background */
+}
+
+:host  ::ng-deep .control-buttons .p-button.p-button-raised:hover {
+  border-color: var(--p-gray-600) !important;
+  background-color: rgba(255, 255, 255, 1) !important; /* Solid on hover */
+}
+
+/* For dark mode - corrected selector */
+:host-context(.my-app-dark)  ::ng-deep .control-buttons .p-button {
+  border-color: var(--p-teal-900) !important;
+  background-color: rgba(30, 30, 30, 0.8) !important; /* Slightly transparent dark background */
+}
+
+:host-context(.my-app-dark) .control-buttons ::ng-deep .p-button:hover {
+  border-color: var(--p-teal-500) !important;
+  background-color: rgba(40, 40, 40, 1) !important; /* Darker solid on hover */
+}
