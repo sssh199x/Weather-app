@@ -98,7 +98,7 @@ export class AuthService {
       // Store in session storage
       sessionStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(updatedUser));
 
-      // Update the current user subject
+      // Update the current user subjects
       this.currentUserSubject.next(updatedUser);
     }
   }
