@@ -63,7 +63,7 @@ export class AuthService {
       email,
       id: '1', // In a real app, this would come from your backend
       cities: [], // Start with empty cities array
-      temperatureUnit: 'celsius' // Default temperature unit
+      temperatureUnit: 'metric' // Default temperature unit
     };
     // Store user in session storage
     sessionStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(user));
@@ -133,10 +133,6 @@ export class AuthService {
       this.updateUserPreferences({ cities: updatedCities });
     }
   }
-
-
-
-
 
 
 }
