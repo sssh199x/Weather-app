@@ -97,6 +97,10 @@ export interface WeatherData {
   weatherIcon: string;
   windSpeed: number;
   date: Date;
+  coord?: {
+    lat: number;
+    lon: number;
+  };
 }
 
 // For forecast data

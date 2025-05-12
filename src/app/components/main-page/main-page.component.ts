@@ -23,12 +23,12 @@ import {DialogService} from '../../services/dialog/dialog.service';
     Toast,
 
   ],
-  providers:[MessageService],
+  providers: [MessageService],
   templateUrl: './main-page.component.html',
   styleUrl: './main-page.component.css'
 })
 export class MainPageComponent implements OnInit {
-  toggleDarkMode= toggleDarkMode;
+  toggleDarkMode = toggleDarkMode;
 
 
   private authService: AuthService = inject(AuthService);
@@ -36,13 +36,11 @@ export class MainPageComponent implements OnInit {
 
 
   ngOnInit() {
-    // Check if user has any cities
-    const user = this.authService.currentUserValue;
-
-    // Show the dialog to add a city if the user has no cities
-    if (user && (!user.cities || user.cities.length === 0)) {
+    // Check if this is a first-time user (no cities added)
+    if (this.authService.isFirstTimeUser()) {
+      // Delay slightly to ensure components are fully loaded
       setTimeout(() => {
-        this.openAddCityDialog();
+        this.dialogService.openAddCityDialog();
       });
     }
   }
@@ -50,5 +48,4 @@ export class MainPageComponent implements OnInit {
   openAddCityDialog() {
     this.dialogService.openAddCityDialog();
   }
-
 }

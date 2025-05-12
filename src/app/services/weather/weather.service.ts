@@ -54,7 +54,8 @@ export class WeatherService {
       weatherDescription: weatherData.weather[0].description,
       weatherIcon: weatherData.weather[0].icon,
       windSpeed: weatherData.wind.speed,
-      date: new Date(weatherData.dt * 1000)
+      date: new Date(weatherData.dt * 1000),
+      coord: weatherData.coord
     }
   }
 

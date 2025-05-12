@@ -1,0 +1,13 @@
+:host ::ng-deep .p-metergroup-meters {
+
+  margin: 0 10px;
+}
+
+
+.coord-info {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-left: 0.625rem;
+  display: block;
+  margin-top: -0.25rem;
+}

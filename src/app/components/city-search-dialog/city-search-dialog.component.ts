@@ -33,6 +33,7 @@ export class CitySearchDialogComponent implements OnInit ,OnDestroy {
   visible = false;
   cityForm!: FormGroup;
   isLoading = false;
+  isFirstCity = false;
 
   private subscription = new Subscription();
 
@@ -71,11 +72,18 @@ export class CitySearchDialogComponent implements OnInit ,OnDestroy {
   }
 
   showDialog() {
-    this.visible = true;
+    // Check if this is first city (for dialog title)
+    this.isFirstCity = this.authService.isFirstTimeUser();
+
+    // Set initial unit from user preferences
+    const userUnit = this.authService.currentUserValue?.temperatureUnit || 'metric';
+
     this.cityForm.reset({
       cityName: '',
-      unit: 'metric'
+      unit: userUnit
     });
+
+    this.visible = true;
   }
 
   hideDialog() {

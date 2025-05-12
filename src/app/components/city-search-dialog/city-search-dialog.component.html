@@ -3,13 +3,15 @@
 <p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '30rem' }">
   <ng-template pTemplate="header">
     <div class="inline-flex items-center justify-center gap-2">
-      <span class="font-bold whitespace-nowrap">Add Your First City</span>
+      <span class="font-bold whitespace-nowrap">
+        {{ isFirstCity ? 'Add Your First City' : 'Add City' }}
+      </span>
     </div>
   </ng-template>
 
   <form [formGroup]="cityForm" (ngSubmit)="saveCity()">
     <span class="text-surface-500 dark:text-surface-400 block mb-4!">
-      Welcome! To get started, please add a city to view weather information.
+      {{ isFirstCity ? 'Welcome! To get started, please add a city to view weather information.' : 'Add a new city to your list.' }}
     </span>
 
     <div class="flex items-center gap-4 mb-4!">
@@ -35,7 +37,7 @@
   </form>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancel" [text]="true" severity="secondary" (click)="hideDialog()" [disabled]="isLoading"  />
+    <p-button label="Cancel" [text]="true" severity="secondary" (click)="hideDialog()" [disabled]="isLoading" />
     <p-button label="Add City" [outlined]="true" severity="primary" (click)="saveCity()" [loading]="isLoading" />
   </ng-template>
 </p-dialog>

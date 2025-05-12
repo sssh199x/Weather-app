@@ -1,35 +1,109 @@
-<div class="card  border border-stone-200 rounded-sm m-2! p-2!">
-  <p-metergroup [value]="value" labelPosition="start">
-    <ng-template #label>
-      <div class="flex flex-wrap gap-4">
-        <ng-container *ngFor="let meterItem of value; let index = index">
-          <p-card class="flex-1" styleClass="border border-surface shadow-none">
-            <div class="w-full flex justify-between gap-8 p-2!">
-              <div class="flex flex-col gap-1">
-                <span class="text-surface-500 dark:text-surface-400 text-sm">{{ meterItem.label }}</span>
-                <span class="font-bold text-lg">{{ meterItem.value }}%</span>
-              </div>
-              <span class="w-8 h-8 rounded-full inline-flex justify-center items-center text-center" [style]="{ 'background-color': meterItem.color1, color: '#ffffff' }"><i [class]="meterItem.icon"></i></span>
+<!-- Add City button at the top -->
+<div class="flex justify-items-start ml-2.5!">
+  <p-button label="Add City" icon="pi pi-plus" [outlined]="true" size="small" (onClick)="onAddCityClick()"/>
+</div>
+
+<!-- Empty state message when no cities -->
+@if (cityWeathers.length === 0) {
+  <div class="flex flex-col items-center justify-center p-8! m-2.5! text-center border border-stone-200 rounded-sm">
+    <i class="pi pi-cloud text-6xl! mb-4! text-gray-400!"></i>
+    <h3 class="text-xl mb-2!">No Cities Added</h3>
+    <p class="text-gray-500 mb-4!">Add a city to view weather information</p>
+    <p-button label="Add Your First City" icon="pi pi-plus" [outlined]="true" (onClick)="onAddCityClick()"/>
+  </div>
+}
+
+<!-- Scrollable list of city weather cards -->
+<div class="cities-container mt-5!">
+  @for (cityWeather of cityWeathers; track cityWeather.city.name) {
+    <div class="card border border-stone-200 rounded-sm m-4! p-2.5!">
+      <div class="flex justify-between items-center mb-2!">
+        <h2 class="font-bold text-1xl md:text-3xl my-auto mx-2.5!">
+          {{ getCityDisplay(cityWeather) }}
+        </h2>
+        <!-- Add lat/long information below city name -->
+        @if (cityWeather.weatherData?.coord) {
+          <span class="text-xs text-gray-500 ml-2.5!">
+        Lat: {{ cityWeather.weatherData?.coord!.lat.toFixed(4) }} | Long: {{ cityWeather.weatherData?.coord!.lon.toFixed(4) }}
+      </span>
+        }
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-500">{{ getWeatherDate(cityWeather) }}</span>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            (onClick)="onRemoveCityClick(cityWeather.city.name)"
+          />
+        </div>
+      </div>
+
+      <!-- Loading spinner -->
+      @if (cityWeather.loading) {
+        <div class="flex justify-center items-center p-4!">
+          <p-progressSpinner strokeWidth="4" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+        </div>
+      }
+
+      <!-- Error message -->
+      @if (cityWeather.error && !cityWeather.loading) {
+        <div class="flex justify-center items-center p-4 text-red-500">
+          <p>Unable to load weather data. Please try again later.</p>
+        </div>
+      }
+
+      <!-- Weather data -->
+      @if (!cityWeather.loading && !cityWeather.error) {
+        <p-metergroup [value]="cityWeather.values" labelPosition="start">
+          <ng-template #label>
+            <div class="flex flex-wrap gap-4">
+              @for (meterItem of cityWeather.values; track $index) {
+                <p-card class="flex-1" styleClass="border border-surface shadow-none">
+                  <div class="w-full flex justify-between gap-8 p-2!">
+                    <div class="flex flex-col gap-1">
+                      <span class="text-surface-500 dark:text-surface-400 text-sm">{{ meterItem.label }}</span>
+                      <span class="font-bold text-lg">{{ meterItem.value }}{{ meterItem.unit }}</span>
+                    </div>
+                    @if (meterItem.iconUrl) {
+                      <div class="flex flex-col justify-center items-center gap-0">
+                        <span class="w-8 h-8 rounded-full inline-flex justify-center items-center text-center">
+                          <p-overlay-badge [value]="getDayOrNight(meterItem.iconCode)" [badgeDisabled]="$last"
+                                           severity="warn" badgeSize="small" class="inline-flex">
+                            <p-avatar class="p-overlay-badge" [image]="meterItem.iconUrl" size="large" shape="circle"/>
+                          </p-overlay-badge>
+                        </span>
+                        <!-- Only display weather condition text for the last element -->
+                        @if ($index === cityWeather.values.length - 1) {
+                          <span class="text-sm text-gray-500">{{ meterItem.overcastString }}</span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="w-8 h-8 rounded-full inline-flex justify-center items-center text-center"
+                            [style]="{ 'background-color': meterItem.color1, color: '#ffffff' }">
+                        <i [class]="meterItem.icon"></i>
+                      </span>
+                    }
+                  </div>
+                </p-card>
+              }
             </div>
-          </p-card>
-        </ng-container>
-      </div>
-    </ng-template>
-    <ng-template #meter let-value let-class="class" let-width="size">
-      <span [class]="class" [style]="{ background: 'linear-gradient(to right, ' + value.color1 + ', ' + value.color2 + ')', width: width }"></span>
-    </ng-template>
-    <ng-template #start let-totalPercent="totalPercent">
-      <div class="flex justify-between mt-4 mb-2 relative  mx-2!">
-        <span>Cloudy</span>
-        <span [style]="{ width: totalPercent + '%' }" class="absolute text-right">{{ totalPercent }}%</span>
-        <span class="font-medium">Sunny</span>
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <div class="flex justify-between mt-4">
-        <p-button label="Remove City" [outlined]="true" size="small" />
-        <p-button label="Add City" [outlined]="true" size="small" (onClick)="onAddCityClick()" />
-      </div>
-    </ng-template>
-  </p-metergroup>
+          </ng-template>
+
+          <ng-template #meter let-value let-class="class" let-width="size">
+            <span [class]="class"
+                  [style]="{ background: 'linear-gradient(to right, ' + value.color1 + ', ' + value.color2 + ')', width: width, }"></span>
+          </ng-template>
+          <ng-template #start let-totalPercent="totalPercent">
+            <div class="flex justify-between mt-4 mb-2 relative mx-2.5!">
+              <span>Clear</span>
+              <span [style]="{ width: totalPercent/2 + '%' }" class="absolute text-right">{{ totalPercent }}%</span>
+              <span class="font-medium">Overcast</span>
+            </div>
+          </ng-template>
+        </p-metergroup>
+      }
+    </div>
+  }
 </div>

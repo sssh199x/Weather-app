@@ -14,71 +14,86 @@ export class AuthService {
   // Observable that components can subscribe to
   public currentUser$ = this.currentUserSubject.asObservable();
 
-  // Session storage key for user data
-  private readonly USER_STORAGE_KEY = 'weatherAppUser';
-
+  // Storage keys
+  private readonly SESSION_AUTH_KEY = 'weatherAppSession';  // Session authentication
+  private readonly LOCAL_CITIES_KEY = 'weatherAppCities_';  // User cities (with email prefix)
+  private readonly LOCAL_UNIT_KEY = 'weatherAppUnit_';      // Temperature unit preference (with email prefix)
 
   private router: Router = inject(Router);
 
-
   constructor() {
-    // When the service is created, it automatically checks if a user session exists in sessionStorage.
-    this.loadUserFromSessionStorage();
+    // Check if user is authenticated in this session
+    this.checkSession();
   }
 
+  private checkSession() {
+    const userSession = sessionStorage.getItem(this.SESSION_AUTH_KEY);
 
-  private loadUserFromSessionStorage() {
-    const userData = sessionStorage.getItem(this.USER_STORAGE_KEY);
-
-    if (userData) {
+    if (userSession) {
       try {
-        const user: User | null = JSON.parse(userData);
-        this.currentUserSubject.next(user);
+        const sessionData = JSON.parse(userSession);
+        // Recreate user object with session auth + localStorage preferences
+        this.loadUserWithPreferences(sessionData.email, sessionData.id);
       } catch (err) {
-        console.log(err);
-        // Invalid JSON in storage
-        sessionStorage.removeItem(this.USER_STORAGE_KEY);
+        console.error('Invalid session data:', err);
+        sessionStorage.removeItem(this.SESSION_AUTH_KEY);
       }
     }
+  }
+
+  // Load user with their stored preferences
+  private loadUserWithPreferences(email: string, id: string) {
+    // Get cities from localStorage (if exists)
+    const citiesJson = localStorage.getItem(`${this.LOCAL_CITIES_KEY}${email}`);
+    const cities = citiesJson ? JSON.parse(citiesJson) : [];
+
+    // Get temperature unit preference (if exists)
+    const unitPreference = localStorage.getItem(`${this.LOCAL_UNIT_KEY}${email}`);
+    const temperatureUnit = unitPreference || 'metric'; // Default to metric if not set
+
+    const user: User = {
+      email,
+      id,
+      cities,
+      temperatureUnit: temperatureUnit as 'metric' | 'imperial'
+    };
+
+    this.currentUserSubject.next(user);
   }
 
   public get currentUserValue(): User | null {
     return this.currentUserSubject.value;
   }
 
-  // Uses the double-bang operator to convert the currentUserValue to a boolean—true if a user exists, false otherwise.
   public isLoggedIn(): boolean {
     return !!this.currentUserValue;
   }
 
-// Login Method
+  // Login Method
   login(email: string, password: string): Observable<User> {
-
     if (password !== "test1234") {
       return throwError(() => new Error('Invalid email or password'));
     }
 
-    // Create a user object
-    const user: User = {
+    // Create session authentication data
+    const sessionData = {
       email,
-      id: '1', // In a real app, this would come from your backend
-      cities: [], // Start with empty cities array
-      temperatureUnit: 'metric' // Default temperature unit
+      id: crypto.randomUUID() // Generate a unique session ID
     };
-    // Store user in session storage
-    sessionStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(user));
 
-    // Update the current user subject
-    this.currentUserSubject.next(user);
+    // Store auth in sessionStorage (clears when browser closes)
+    sessionStorage.setItem(this.SESSION_AUTH_KEY, JSON.stringify(sessionData));
 
-    return of(user);
+    // Load user with stored preferences
+    this.loadUserWithPreferences(email, sessionData.id);
+
+    return of(this.currentUserValue!);
   }
-
 
   // Logout method
   public logout(): void {
-    // Remove user from session storage
-    sessionStorage.removeItem(this.USER_STORAGE_KEY);
+    // Remove session authentication
+    sessionStorage.removeItem(this.SESSION_AUTH_KEY);
 
     // Update the current user subject
     this.currentUserSubject.next(null);
@@ -87,18 +102,30 @@ export class AuthService {
     this.router.navigate(['']);
   }
 
-
-  // Update user preferences
+  // Update user preferences (persistent across sessions)
   public updateUserPreferences(updates: Partial<User>): void {
     const currentUser = this.currentUserValue;
     if (currentUser) {
       // Create updated user object
       const updatedUser = { ...currentUser, ...updates };
 
-      // Store in session storage
-      sessionStorage.setItem(this.USER_STORAGE_KEY, JSON.stringify(updatedUser));
+      // Save cities to localStorage if updated
+      if (updates.cities) {
+        localStorage.setItem(
+          `${this.LOCAL_CITIES_KEY}${currentUser.email}`,
+          JSON.stringify(updatedUser.cities)
+        );
+      }
 
-      // Update the current user subjects
+      // Save temperature unit to localStorage if updated
+      if (updates.temperatureUnit) {
+        localStorage.setItem(
+          `${this.LOCAL_UNIT_KEY}${currentUser.email}`,
+          updatedUser.temperatureUnit
+        );
+      }
+
+      // Update the current user subject for the session
       this.currentUserSubject.next(updatedUser);
     }
   }
@@ -134,5 +161,10 @@ export class AuthService {
     }
   }
 
-
+  // Check if this is user's first login (no cities added)
+  public isFirstTimeUser(): boolean {
+    const currentUser = this.currentUserValue;
+    return currentUser !== null &&
+      (!currentUser.cities || currentUser.cities.length === 0);
+  }
 }
