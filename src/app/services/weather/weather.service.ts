@@ -60,14 +60,28 @@ export class WeatherService {
   }
 
   // Transform forecast API response to our ForecastDay model
+// Transform forecast API response to our ForecastDay model
   private transformForecastData(data: ForecastResponse, units: 'metric' | 'imperial'): ForecastDay[] {
     // Group by day and calculate min/max
     const dailyData = new Map<string, {
       temps: number[];
       weatherCounts: Map<string, number>;
       icons: Map<string, number>;
+      descriptions: Map<string, number>;
+      humidities: number[];
+      windSpeeds: number[];
+      pops: number[]; // Probability of precipitation
       date: Date;
+      dataPoints: Array<{
+        time: Date;
+        temp: number;
+        weatherIcon: string;
+        weatherMain: string;
+      }>;
     }>();
+
+    // Get the country code from the city object
+    const countryCode = data.city.country;
 
     // Process each forecast entry (every 3 hours)
     data.list.forEach(item => {
@@ -79,7 +93,12 @@ export class WeatherService {
           temps: [],
           weatherCounts: new Map<string, number>(),
           icons: new Map<string, number>(),
-          date
+          descriptions: new Map<string, number>(),
+          humidities: [],
+          windSpeeds: [],
+          pops: [],
+          date,
+          dataPoints: []
         });
       }
 
@@ -88,9 +107,19 @@ export class WeatherService {
       // Add temperature
       dayData.temps.push(item.main.temp);
 
+      // Store humidity
+      dayData.humidities.push(item.main.humidity);
+
+      // Store wind speed
+      dayData.windSpeeds.push(item.wind.speed);
+
+      // Store precipitation probability
+      dayData.pops.push(item.pop * 100); // Convert to percentage
+
       // Count weather conditions to find most common
       const weather = item.weather[0].main;
       const icon = item.weather[0].icon;
+      const description = item.weather[0].description;
 
       dayData.weatherCounts.set(
         weather,
@@ -101,6 +130,19 @@ export class WeatherService {
         icon,
         (dayData.icons.get(icon) || 0) + 1
       );
+
+      dayData.descriptions.set(
+        description,
+        (dayData.descriptions.get(description) || 0) + 1
+      );
+
+      // Add data point for hourly breakdown
+      dayData.dataPoints.push({
+        time: date,
+        temp: item.main.temp,
+        weatherIcon: item.weather[0].icon,
+        weatherMain: item.weather[0].main
+      });
     });
 
     // Convert to forecast days
@@ -129,9 +171,25 @@ export class WeatherService {
         }
       });
 
+      // Find most common description
+      maxCount = 0;
+      let mostCommonDescription = '';
+
+      data.descriptions.forEach((count, description) => {
+        if (count > maxCount) {
+          maxCount = count;
+          mostCommonDescription = description;
+        }
+      });
+
       // Calculate min and max temperatures
       const tempMax = Math.max(...data.temps);
       const tempMin = Math.min(...data.temps);
+
+      // Calculate average humidity and wind speed
+      const avgHumidity = data.humidities.reduce((sum, h) => sum + h, 0) / data.humidities.length;
+      const avgWindSpeed = data.windSpeeds.reduce((sum, w) => sum + w, 0) / data.windSpeeds.length;
+      const maxPrecipitation = Math.max(...data.pops);
 
       // Get day of week
       const dayOfWeek = new Intl.DateTimeFormat('en-US', {weekday: 'short'}).format(data.date);
@@ -142,15 +200,41 @@ export class WeatherService {
         tempMax,
         tempMin,
         weatherMain: mostCommonWeather,
-        weatherIcon: mostCommonIcon
+        weatherDescription: mostCommonDescription,
+        weatherIcon: mostCommonIcon,
+        countryCode: countryCode, // Add the country code from the city object
+        humidity: Math.round(avgHumidity),
+        windSpeed: Math.round(avgWindSpeed * 10) / 10, // Round to 1 decimal
+        precipitation: Math.round(maxPrecipitation),
+        dataPoints: data.dataPoints.sort((a, b) => a.time.getTime() - b.time.getTime())
       });
     });
 
     // Sort by date
     forecastDays.sort((a, b) => a.date.getTime() - b.date.getTime());
 
+    // Create a map to store unique days by their dayOfWeek + date
+    // Use a more specific key that combines day of week with date to ensure uniqueness
+    const uniqueDays = new Map<string, ForecastDay>();
+
+    forecastDays.forEach(day => {
+      // Create a unique key using day of week + date (e.g., "Tue-13")
+      const dateStr = day.date.getDate().toString();
+      const uniqueKey = `${day.dayOfWeek}-${dateStr}`;
+
+      if (!uniqueDays.has(uniqueKey)) {
+        uniqueDays.set(uniqueKey, day);
+      }
+    });
+
+    // Convert back to array
+    const uniqueForecastDays = Array.from(uniqueDays.values());
+
+    // Sort again to ensure correct order
+    uniqueForecastDays.sort((a, b) => a.date.getTime() - b.date.getTime());
+
     // Return the next 5 days
-    return forecastDays.slice(0, 5);
+    return uniqueForecastDays.slice(0, 5);
   }
 
   // Helper to get weather icon URL
@@ -168,5 +252,4 @@ export class WeatherService {
       return (temp - 32) * 5 / 9; // Fahrenheit to Celsius
     }
   }
-
 }

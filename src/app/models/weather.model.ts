@@ -42,6 +42,9 @@ export interface WeatherResponse {
 }
 
 export interface ForecastResponse {
+  cod: string;
+  message: number;
+  cnt: number;
   list: {
     dt: number;
     main: {
@@ -50,7 +53,10 @@ export interface ForecastResponse {
       temp_min: number;
       temp_max: number;
       pressure: number;
+      sea_level: number;
+      grnd_level: number;
       humidity: number;
+      temp_kf: number;
     };
     weather: {
       id: number;
@@ -68,6 +74,12 @@ export interface ForecastResponse {
     };
     visibility: number;
     pop: number;
+    rain?: {
+      '3h': number;
+    };
+    sys: {
+      pod: string; // 'd' for day, 'n' for night
+    };
     dt_txt: string;
   }[];
   city: {
@@ -78,6 +90,7 @@ export interface ForecastResponse {
       lon: number;
     };
     country: string;
+    population: number;
     timezone: number;
     sunrise: number;
     sunset: number;
@@ -110,5 +123,16 @@ export interface ForecastDay {
   tempMax: number;
   tempMin: number;
   weatherMain: string;
+  weatherDescription?: string;
   weatherIcon: string;
+  countryCode: string;
+  humidity?: number;
+  windSpeed?: number;
+  precipitation?: number; // Probability of precipitation
+  dataPoints?: Array<{
+    time: Date;
+    temp: number;
+    weatherIcon: string;
+    weatherMain: string;
+  }>;
 }

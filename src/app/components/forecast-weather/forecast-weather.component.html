@@ -1,0 +1,132 @@
+<div class="forecast-container p-4!">
+  <!-- Sticky Header with back button and city name -->
+  <div class="sticky top-0 z-50 backdrop-blur-sm! py-3! px-4! -mx-4! mb-4! shadow-sm!">
+    <div class="flex items-center gap-2!">
+      <p-button icon="pi pi-arrow-left" (onClick)="goBack()" [text]="true" [rounded]="true" styleClass="p-button-secondary"></p-button>
+      <h1 class="text-2xl font-bold">
+        5-Day Forecast for {{ cityName }}
+        <span *ngIf="countryCode" class="text-sm text-gray-500 ml-2!">({{ countryCode }})</span>
+      </h1>
+    </div>
+  </div>
+
+  <!-- Loading state -->
+  <div *ngIf="loading" class="flex justify-center items-center p-8!">
+    <p-progressSpinner strokeWidth="4" [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+    <span class="ml-3!">Loading forecast data...</span>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error && !loading" class="flex justify-center items-center p-4! bg-red-100 text-red-800 rounded-lg! mb-4!">
+    <i class="pi pi-exclamation-triangle mr-2!"></i>
+    <span>Failed to load forecast data. Please try again.</span>
+    <p-button label="Retry" icon="pi pi-refresh" styleClass="p-button-sm ml-3!" (onClick)="loadForecast()"></p-button>
+  </div>
+
+  <!-- Forecast content -->
+  <div *ngIf="!loading && !error" class="forecast-content">
+    <!-- Temperature graph card -->
+    <p-card styleClass="mb-4!" header="Temperature Trend">
+      <div class="chart-container">
+        <p-chart type="line" [data]="temperatureChartData" [options]="temperatureChartOptions" height="300px"></p-chart>
+      </div>
+    </p-card>
+
+    <!-- Daily forecast cards - Fixed grid layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4!">
+      <div *ngFor="let day of forecastData">
+        <p-card [styleClass]="'h-full forecast-day-card ' + getWeatherClass(day.weatherMain)">
+          <ng-template pTemplate="header">
+            <div class="flex flex-col items-center py-3! border-b border-gray-200">
+              <h3 class="text-xl font-bold mb-1!">{{ day.dayOfWeek }}</h3>
+              <span class="text-sm text-gray-600">{{ formatDate(day.date) }}</span>
+            </div>
+          </ng-template>
+
+          <div class="flex flex-col items-center p-3!">
+            <!-- Weather icon and condition -->
+            <div class="weather-icon-container mb-3!">
+              <img [src]="getWeatherIconUrl(day.weatherIcon)" [alt]="day.weatherMain" class="weather-icon">
+              <span class="weather-description mt-2! block text-center">
+                {{ capitalizeFirstLetter(day.weatherDescription || day.weatherMain) }}
+              </span>
+            </div>
+
+            <!-- Temperature info -->
+            <div class="temperature-container flex justify-between w-full mb-3!">
+              <div class="text-center">
+                <i class="pi pi-arrow-up text-orange-500"></i>
+                <div class="font-bold text-lg">{{ day.tempMax.toFixed(1) }}{{ unitSymbol }}</div>
+                <div class="text-xs text-gray-500">High</div>
+              </div>
+              <div class="text-center">
+                <i class="pi pi-arrow-down text-blue-500"></i>
+                <div class="font-bold text-lg">{{ day.tempMin.toFixed(1) }}{{ unitSymbol }}</div>
+                <div class="text-xs text-gray-500">Low</div>
+              </div>
+            </div>
+
+            <!-- Additional weather info -->
+            <div class="additional-info w-full">
+              <div class="flex justify-between py-1! border-t border-gray-200">
+                <span class="text-gray-600">Humidity</span>
+                <span class="font-medium">{{ day.humidity }}%</span>
+              </div>
+              <div class="flex justify-between py-1! border-t border-gray-200">
+                <span class="text-gray-600">Wind</span>
+                <span class="font-medium">{{ day.windSpeed }} m/s</span>
+              </div>
+              <div class="flex justify-between py-1! border-t border-gray-200">
+                <span class="text-gray-600">Chance of Rain</span>
+                <span class="font-medium">{{ day.precipitation }}%</span>
+              </div>
+            </div>
+          </div>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- Forecast table (alternate view) -->
+    <p-card styleClass="mt-4!" header="Forecast Details">
+      <p-table [value]="forecastData" [tableStyle]="{'min-width': '50rem'}" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Day</th>
+            <th>Date</th>
+            <th>Weather</th>
+            <th>High</th>
+            <th>Low</th>
+            <th>Humidity</th>
+            <th>Wind</th>
+            <th>Precip.</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-day>
+          <tr>
+            <td>{{ day.dayOfWeek }}</td>
+            <td>{{ formatDate(day.date) }}</td>
+            <td>
+              <div class="flex items-center">
+                <img [src]="getWeatherIconUrl(day.weatherIcon)" height="30" [alt]="day.weatherMain" class="mr-2!">
+                <span>{{ day.weatherMain }}</span>
+              </div>
+            </td>
+            <td>{{ day.tempMax.toFixed(1) }}{{ unitSymbol }}</td>
+            <td>{{ day.tempMin.toFixed(1) }}{{ unitSymbol }}</td>
+            <td>{{ day.humidity }}%</td>
+            <td>{{ day.windSpeed }} m/s</td>
+            <td>{{ day.precipitation }}%</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </p-card>
+  </div>
+
+  <!-- No forecast data available -->
+  <div *ngIf="!loading && !error && forecastData.length === 0" class="flex flex-col items-center justify-center p-8! bg-gray-100 rounded-lg">
+    <i class="pi pi-info-circle text-4xl text-blue-500 mb-3!"></i>
+    <h3 class="text-xl font-medium mb-2!">No Forecast Data Available</h3>
+    <p class="text-gray-600 text-center mb-4!">We couldn't find any forecast data for {{ cityName }}.</p>
+    <p-button label="Back to Weather" icon="pi pi-home" (onClick)="goBack()"></p-button>
+  </div>
+</div>

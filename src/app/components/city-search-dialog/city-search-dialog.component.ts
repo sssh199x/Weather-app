@@ -37,12 +37,10 @@ export class CitySearchDialogComponent implements OnInit ,OnDestroy {
 
   private subscription = new Subscription();
 
-
   unitOptions = [
     {label: 'Celsius (°C)', value: 'metric'},
     {label: 'Fahrenheit (°F)', value: 'imperial'}
   ];
-
 
   constructor(
     private fb: FormBuilder,

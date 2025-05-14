@@ -5,8 +5,6 @@ import {Subject} from 'rxjs';
   providedIn: 'root'
 })
 export class DialogService {
-
-
   private openAddCityDialogSource = new Subject<void>();
   openAddCityDialog$ = this.openAddCityDialogSource.asObservable();
 

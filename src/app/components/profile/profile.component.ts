@@ -15,13 +15,10 @@ import {AuthService} from '../../services/auth/auth.service';
   styleUrl: './profile.component.css'
 })
 export class ProfileComponent implements OnInit {
-
-
   items: MenuItem[] | undefined;
   // Inject the services you need
   private router = inject(Router);
   private authService = inject(AuthService);
-
 
   ngOnInit() {
     this.items = [
@@ -57,13 +54,4 @@ export class ProfileComponent implements OnInit {
     this.authService.logout();
     // The auth service will typically handle navigation to the login page
   }
-
-
-
-
-
-
-
-
-
 }

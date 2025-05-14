@@ -1,1 +1,74 @@
-<p>settings-screen works!</p>
+<div class="flex! justify-center h-screen items-center! ">
+<p-card >
+  <p-toast></p-toast>
+
+  <div class="settings-content">
+    <h2 class="text-2xl! font-bold mb-4!">Temperature Units</h2>
+    <p class="mb-4!">
+      Choose your preferred temperature format for displaying weather information.
+    </p>
+
+    <div class="temperature-options">
+      <div class="flex items-center mb-3!">
+        <p-radioButton
+          name="temperatureUnit"
+          value="metric"
+          [(ngModel)]="selectedUnit"
+          inputId="metric"
+          [disabled]="isRedirecting">
+        </p-radioButton>
+        <label for="metric" class="ml-2! cursor-pointer">
+          Celsius (°C) <span class="text-sm text-gray-500">Example: 20°C</span>
+        </label>
+      </div>
+
+      <div class="flex items-center mb-3!">
+        <p-radioButton
+          name="temperatureUnit"
+          value="imperial"
+          [(ngModel)]="selectedUnit"
+          inputId="imperial"
+          [disabled]="isRedirecting">
+        </p-radioButton>
+        <label for="imperial" class="ml-2! cursor-pointer">
+          Fahrenheit (°F) <span class="text-sm text-gray-500">Example: 68°F</span>
+        </label>
+      </div>
+    </div>
+    <p-divider></p-divider>
+
+    <div class="flex justify-between my-3!">
+      <div class="unit-info">
+        <span class="text-sm text-gray-600">Current setting: </span>
+        <span class="font-medium">{{ currentSettingDisplay }}</span>
+      </div>
+
+      <div class="unit-conversion text-sm text-gray-600">
+        0°C = 32°F | 100°F = 37.8°C
+      </div>
+    </div>
+
+    <p-divider></p-divider>
+
+    <h3 class="text-xl font-bold mt-4! mb-2!">About Temperature Units</h3>
+    <p class="mb-2!">
+      Your selected temperature unit will be used throughout the application and remembered for future sessions.
+    </p>
+    <ul class="ml-5! mb-4!">
+      <li class="mb-1!">- Celsius is used in most countries worldwide</li>
+      <li>- Fahrenheit is primarily used in the United States</li>
+    </ul>
+
+    <!-- Loading indicator and redirect message -->
+    <div *ngIf="isRedirecting" class="redirect-message flex items-center justify-center p-4! my-4! bg-blue-50 text-blue-800 rounded-lg">
+      <i class="pi pi-spin pi-spinner mr-2!"></i>
+      <span>Settings saved! Redirecting to weather dashboard...</span>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6!">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="cancelChanges()" [disabled]="isRedirecting"></p-button>
+      <p-button label="Save Changes" severity="primary" (onClick)="saveSettings()" [loading]="isRedirecting"></p-button>
+    </div>
+  </div>
+</p-card>
+</div>

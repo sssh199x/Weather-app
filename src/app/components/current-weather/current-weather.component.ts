@@ -11,7 +11,8 @@ import {ProgressSpinner} from 'primeng/progressspinner';
 import {Avatar} from 'primeng/avatar';
 import {OverlayBadge} from 'primeng/overlaybadge';
 import {City} from '../../models/user';
-import {Divider} from 'primeng/divider';
+import {Fieldset} from 'primeng/fieldset';
+import {Router} from '@angular/router';
 
 interface CityWeather {
   city: City;
@@ -30,6 +31,7 @@ interface CityWeather {
     ProgressSpinner,
     OverlayBadge,
     Avatar,
+    Fieldset,
   ],
   templateUrl: './current-weather.component.html',
   styleUrl: './current-weather.component.css'
@@ -38,6 +40,7 @@ export class CurrentWeatherComponent implements OnInit, OnDestroy {
   private dialogService: DialogService = inject(DialogService);
   private authService: AuthService = inject(AuthService);
   private weatherService: WeatherService = inject(WeatherService);
+  private router: Router = inject(Router);
 
   // Array of city weather data
   cityWeathers: CityWeather[] = [];
@@ -187,7 +190,7 @@ export class CurrentWeatherComponent implements OnInit, OnDestroy {
   }
 
   getWeatherIconUrl(iconCode: string): string {
-    return `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
+   return this.weatherService.getIconUrl(iconCode);
   }
 
   calculateOvercastValue(weatherMain: string): number {
@@ -233,7 +236,6 @@ export class CurrentWeatherComponent implements OnInit, OnDestroy {
     return cityWeather.weatherData.date.toLocaleString();
   }
 
-
   // Get whether the icon represents day or night
   getDayOrNight(iconCode: string): string {
     // OpenWeatherMap icon codes end with 'd' for day and 'n' for night
@@ -248,5 +250,18 @@ export class CurrentWeatherComponent implements OnInit, OnDestroy {
 
 
     return lastChar === 'd' ? 'Day' : 'Night';
+  }
+
+  navigateToForecast(cityWeather: CityWeather) {
+    if (!cityWeather.weatherData) return;
+
+    // Navigate to forecast page with city name and coordinates
+    this.router.navigate(['/forecast-page', cityWeather.weatherData.cityName], {
+      queryParams: {
+        lat: cityWeather.weatherData.coord?.lat,
+        lon: cityWeather.weatherData.coord?.lon,
+        country: cityWeather.weatherData.countryCode
+      }
+    });
   }
 }
