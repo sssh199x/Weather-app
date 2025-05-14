@@ -2,7 +2,7 @@
 
 A modern, responsive weather application built with Angular, PrimeNG, and Tailwind CSS. This application allows users to track weather conditions for multiple cities, view detailed 5-day forecasts, and customize their experience.
 
-![Weather App Screenshot](https://via.placeholder.com/800x450)
+![Weather App Screenshot](![Uploading image.png…]())
 ![Weather App Dark Mode](https://via.placeholder.com/800x450)
 ![Weather App Forecast View](https://via.placeholder.com/800x450)
 
