@@ -2,9 +2,20 @@
 
 A modern, responsive weather application built with Angular, PrimeNG, and Tailwind CSS. This application allows users to track weather conditions for multiple cities, view detailed 5-day forecasts, and customize their experience.
 
-![Weather App Screenshot](![Uploading image.png…]())
-![Weather App Dark Mode](https://via.placeholder.com/800x450)
-![Weather App Forecast View](https://via.placeholder.com/800x450)
+# Screenshots
+
+<img width="1470" alt="Screenshot 2025-05-14 at 10 35 00" src="https://github.com/user-attachments/assets/b8e1c995-3b2c-41f4-8480-24cb206b07fb" />
+<img width="1709" alt="Screenshot 2025-05-14 at 10 43 16" src="https://github.com/user-attachments/assets/5bca563e-48be-4d02-abed-ca47ad1d3eaf" />
+
+
+<img width="1470" alt="Screenshot 2025-05-14 at 10 25 06" src="https://github.com/user-attachments/assets/aa8e9569-f65e-4508-bbb6-1ec3f6cccfab" />
+<img width="1470" alt="Screenshot 2025-05-14 at 10 26 46" src="https://github.com/user-attachments/assets/186843b3-b2b6-444b-a36b-124f10da8bea" />
+
+<img width="1468" alt="Screenshot 2025-05-14 at 10 29 15" src="https://github.com/user-attachments/assets/f702aa72-0010-4c4f-bcd2-ba33caafff26" />
+<img width="1469" alt="Screenshot 2025-05-14 at 10 28 31" src="https://github.com/user-attachments/assets/535ca35d-9b5c-46b6-8174-148f73612c4e" />
+
+<img width="1470" alt="Screenshot 2025-05-14 at 10 31 00" src="https://github.com/user-attachments/assets/ab94536d-c155-482b-a340-5c5b7d94ca2c" />
+<img width="1470" alt="Screenshot 2025-05-14 at 10 32 57" src="https://github.com/user-attachments/assets/1b995e20-1263-4a88-a8b0-6b47efc12bfc" />
 
 ## Features
 
